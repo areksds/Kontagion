@@ -17,7 +17,6 @@ class StudentWorld : public GameWorld
     virtual int move();
     virtual void cleanUp();
    private:
-    // bool actorExists(int x, int y, int type) const;
     std::vector<Actor*> m_actors;
     Socrates* m_player = nullptr;
 };
