@@ -5,8 +5,6 @@
 
 class StudentWorld;
 
-const double PI = 4 * atan(1);
-
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
 /*
@@ -17,14 +15,13 @@ class Actor : public GraphObject
 {
    public:
     Actor(int health, int image, double x, double y, Direction dir, int depth, StudentWorld* world);
-    virtual void doSomething();
-    virtual void func() = 0;
+    virtual void doSomething() = 0;
+   protected:
     bool isAlive() const;
     int getHealth() const;
+    StudentWorld* getWorld() const;
     void removeHealth(int h);
     void kill();
-   protected:
-    StudentWorld* getWorld() const;
    private:
     StudentWorld* m_world;
     bool m_alive = true;
@@ -39,9 +36,9 @@ class Socrates : public Actor
 {
    public:
     Socrates(StudentWorld* world);
-    void func();
-    void move();
+    void doSomething();
    private:
+    void moveSocrates(Direction dir);
     int m_spray = 20;
     int m_fire = 5;
 };
@@ -55,7 +52,6 @@ class Dirt : public Actor
    public:
     Dirt(double x, double y, StudentWorld* world);
     void doSomething() {}
-    void func() {}
 };
 
 #endif // ACTOR_H_

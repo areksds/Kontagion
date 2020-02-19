@@ -29,12 +29,13 @@ int StudentWorld::init()
     m_player = new Socrates(this);
     
     int num;
+    int x, y;
     
     // INITIALIZE DIRT
     num = max(180 - 20 * getLevel(), 20);
+
     while (num > 0)
     {
-        int x, y;
         for (;;)
         {
             x = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
@@ -45,15 +46,11 @@ int StudentWorld::init()
         m_actors.push_back(new Dirt(x, y, this));
         num--;
     }
-    
     return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move()
 {
-    // This code is here merely to allow the game to build, run, and terminate after you hit enter.
-    // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-    
     /*
      BE SURE TO CHECK FOR DEAD ACTORS
      */
