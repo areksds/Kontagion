@@ -34,78 +34,26 @@ int StudentWorld::init()
 
     generateActors<Pit>(getLevel(), generated);
     
-    /*
-    
-    num = getLevel();
-     
-    while (num > 0)
-    {
-        for (;;)
-        {
-            x = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            y = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            if (sqrt(pow(x-VIEW_RADIUS,2)+(pow(y-VIEW_RADIUS,2))) <= 120 && !checkOverlap(x,y,generated))
-                break;
-        }
-        m_actors.push_back(new Pit(x, y, this));
-        generated++;
-        num--;
-    } */
-    
     // INITIALIZE FOOD
     
     generateActors<Food>(min(5 * getLevel(), 25), generated);
     
-    /*
-    num = min(5 * getLevel(), 25);
-    
-    while (num > 0)
-    {
-        for (;;)
-        {
-            x = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            y = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            if (sqrt(pow(x-VIEW_RADIUS,2)+(pow(y-VIEW_RADIUS,2))) <= 120 && !checkOverlap(x,y,generated))
-                break;
-        }
-        m_actors.push_back(new Food(x, y, this));
-        generated++;
-        num--;
-    } */
-    
     // INITIALIZE DIRT
     
     generateActors<Dirt>(max(180 - 20 * getLevel(), 20), generated, false);
-    
-    /*
-    num = max(180 - 20 * getLevel(), 20);
-
-    while (num > 0)
-    {
-        for (;;)
-        {
-            x = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            y = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            if (sqrt(pow(x-VIEW_RADIUS,2)+(pow(y-VIEW_RADIUS,2))) <= 120 && !checkOverlap(x,y,generated))
-                break;
-        }
-        m_actors.push_back(new Dirt(x, y, this));
-        num--;
-    }
-     */
     
     return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move()
 {
-    /*
-     BE SURE TO CHECK FOR DEAD ACTORS
-     */
+
     m_player->doSomething();
     for (int i = 0; i != m_actors.size(); i++)
     {
-        m_actors[i]->doSomething();
+        
+        if (m_actors[i]->isAlive())
+            m_actors[i]->doSomething();
         
         if (!m_player->isAlive())
             return GWSTATUS_PLAYER_DIED;
@@ -113,6 +61,19 @@ int StudentWorld::move()
         // IF SOCRATES FINISHED LEVEL
         // return GWSTATUS_FINISHED_LEVEL;
     }
+    
+    /*
+     REMOVE DEAD ACTORS
+     */
+    
+    /*
+     ADD NEW GOODIES IF NECESSARY
+     */
+    
+    /*
+     UPDATE THE GAME STATUS LINE
+     */
+    
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -138,6 +99,28 @@ bool StudentWorld::checkOverlap(double x, double y, int num)
     {
         if (sqrt(pow(m_actors[i]->getX() - x,2) + pow(m_actors[i]->getY() - y,2)) <= SPRITE_WIDTH)
             return true;
+    }
+    return false;
+}
+
+bool StudentWorld::checkOverlap(Actor* original, int damage)
+{
+    for (int i = 0; i != m_actors.size(); i++)
+    {
+        if (sqrt(pow(m_actors[i]->getX() - original->getX(),2) + pow(m_actors[i]->getY() - original->getY(),2)) <= SPRITE_WIDTH)
+        {
+            if (damage > 0)
+            {
+                if (m_actors[i]->isDamagable())
+                {
+                    m_actors[i]->removeHealth(damage);
+                    return true;
+                }
+            }
+            else
+                return true;
+                
+        }
     }
     return false;
 }

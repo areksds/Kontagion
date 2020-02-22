@@ -5,6 +5,18 @@
 
 class StudentWorld;
 
+/*
+ 
+ ADD DERIVED BASE CLASSES FOR FOLLOWING FUNCTIONS:
+ isDamagable()
+ 
+ AND OBJECTS:
+ Spray and Flame (projectiles?)
+ 
+ 
+ */
+
+
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
 const double RAD_CONV = 1.0 / 360 * 2 * 4 * atan(1);
@@ -17,13 +29,15 @@ class Actor : public GraphObject
 {
    public:
     Actor(int health, int image, double x, double y, Direction dir, int depth, StudentWorld* world);
-    virtual void doSomething() = 0;
-    bool isAlive() const;
-   protected:
+    virtual void doSomething();
+    virtual void Func() = 0;
+    virtual bool isDamagable() const;
     int getHealth() const;
-    StudentWorld* getWorld() const;
+    bool isAlive() const;
     void removeHealth(int h);
     void kill();
+   protected:
+    StudentWorld* getWorld() const;
    private:
     StudentWorld* m_world;
     bool m_alive = true;
@@ -38,11 +52,53 @@ class Socrates : public Actor
 {
    public:
     Socrates(StudentWorld* world);
-    void doSomething();
+    void Func();
    private:
     void moveSocrates(Direction dir);
     int m_spray = 20;
     int m_fire = 5;
+};
+
+/*
+ PROJECTILES
+ */
+
+class Projectile : public Actor
+{
+   public:
+    Projectile(int distance);
+    void Func();
+    bool isDamagable() { return false; }
+   private:
+    int m_distance;
+};
+
+/*
+ FLAME
+ */
+
+class Flame : public Actor
+{
+   public:
+    Flame(double x, double y, Direction dir, StudentWorld* world);
+    void Func();
+    bool isDamagable() { return false; }
+   private:
+    int m_distance = 32;
+};
+
+/*
+ SPRAY
+ */
+
+class Spray : public Actor
+{
+   public:
+    Spray(double x, double y, Direction dir, StudentWorld* world);
+    void Func();
+    bool isDamagable() { return false; }
+   private:
+    int m_distance = 112;
 };
 
 /*
@@ -53,7 +109,9 @@ class Dirt : public Actor
 {
    public:
     Dirt(double x, double y, StudentWorld* world);
-    void doSomething() {}
+    void doSomething () {}
+    void Func() {}
+    
 };
 
 /*
@@ -64,7 +122,9 @@ class Food : public Actor
 {
    public:
     Food(double x, double y, StudentWorld* world);
-    void doSomething() {}
+    void doSomething () {}
+    void Func() {}
+    bool isDamagable() { return false; }
 };
 
 /*
@@ -75,7 +135,8 @@ class Pit : public Actor
 {
    public:
     Pit(double x, double y, StudentWorld* world);
-    void doSomething() {}
+    void Func() {}
+    bool isDamagable() { return false; }
     /*
      CODE FUNCTIONS FOR BACTERIA
      */

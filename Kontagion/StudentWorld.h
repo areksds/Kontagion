@@ -17,6 +17,7 @@ class StudentWorld : public GameWorld
     virtual int move();
     virtual void cleanUp();
     bool checkOverlap(double x, double y, int num = -1);
+    bool checkOverlap(Actor* original, int damage = 0);
    private:
     template<typename T>
         void generateActors(int num, int& existing, bool increment = true);

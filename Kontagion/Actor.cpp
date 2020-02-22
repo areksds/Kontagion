@@ -8,9 +8,21 @@
 
 Actor::Actor(int health, int image, double x, double y, Direction dir, int depth, StudentWorld* world) : GraphObject(image, x, y, dir, depth), m_health(health), m_world(world) {}
 
+void Actor::doSomething()
+{
+    if (!isAlive())
+        return;
+    Func();
+}
+
 bool Actor::isAlive() const
 {
     return m_alive;
+}
+
+bool Actor::isDamagable() const
+{
+    return true;
 }
 
 int Actor::getHealth() const
@@ -41,7 +53,7 @@ StudentWorld* Actor::getWorld() const
 
 Socrates::Socrates(StudentWorld* world) : Actor(100, IID_PLAYER, 0, VIEW_HEIGHT/2, 0, 0, world) {}
 
-void Socrates::doSomething()
+void Socrates::Func()
 {
     int ch;
     if (getWorld()->getKey(ch))
@@ -74,6 +86,46 @@ void Socrates::moveSocrates(Direction dir)
     double x = VIEW_RADIUS + cos((getDirection() + 180) * RAD_CONV)*VIEW_RADIUS;
     double y = VIEW_RADIUS + sin((getDirection() + 180) * RAD_CONV)*VIEW_RADIUS;
     moveTo(x, y);
+}
+
+/*
+ FLAME FUNCTIONS
+ */
+
+Flame::Flame(double x, double y, Direction dir, StudentWorld* world) : Actor(0, IID_FLAME, x, y, dir, 1, world) {}
+
+void Flame::Func()
+{
+    while (m_distance > 0)
+    {
+        if (getWorld()->checkOverlap(this,5))
+        {
+            kill();
+            return;
+        }
+        moveAngle(getDirection(), SPRITE_WIDTH);
+        m_distance -= SPRITE_WIDTH;
+    }
+}
+
+/*
+ FLAME FUNCTIONS
+ */
+
+Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Actor(0, IID_SPRAY, x, y, dir, 1, world) {}
+
+void Spray::Func()
+{
+    while (m_distance > 0)
+    {
+        if (getWorld()->checkOverlap(this,2))
+        {
+            kill();
+            return;
+        }
+        moveAngle(getDirection(), SPRITE_WIDTH);
+        m_distance -= SPRITE_WIDTH;
+    }
 }
 
 /*
