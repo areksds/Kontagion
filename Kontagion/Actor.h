@@ -47,6 +47,7 @@ class Socrates : public Actor
    public:
     Socrates(StudentWorld* world);
     void Func();
+    void goodie(int which);
    private:
     void moveSocrates(Direction dir);
     int m_spray = 20;
@@ -54,13 +55,13 @@ class Socrates : public Actor
 };
 
 /*
- IMMORTALS (BASE)
+ INANIMATES (BASE)
  */
 
-class Immortal : public Actor
+class Inanimate : public Actor
 {
    public:
-    Immortal(int image, double x, double y, Direction dir, StudentWorld* world);
+    Inanimate(int image, double x, double y, Direction dir, StudentWorld* world);
     bool isDamagable() const;
 };
 
@@ -68,7 +69,7 @@ class Immortal : public Actor
  PROJECTILES (BASE)
  */
 
-class Projectile : public Immortal
+class Projectile : public Inanimate
 {
    public:
     Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world);
@@ -112,7 +113,7 @@ class Dirt : public Actor
  FOOD
  */
 
-class Food : public Immortal
+class Food : public Inanimate
 {
    public:
     Food(double x, double y, StudentWorld* world);
@@ -123,7 +124,7 @@ class Food : public Immortal
  PIT
  */
 
-class Pit : public Immortal
+class Pit : public Inanimate
 {
    public:
     Pit(double x, double y, StudentWorld* world);
@@ -140,11 +141,12 @@ class Pit : public Immortal
  GOODIE (BASE)
  */
 
-class Goodie : public Immortal
+class Goodie : public Inanimate
 {
    public:
     Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world);
     virtual void goodieEffects() = 0;
+    bool isDamagable() const;
     void Func();
    private:
     int m_lifetime;

@@ -2,6 +2,8 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 
+using namespace std;
+
 /*
  ACTOR FUNCTIONS
  */
@@ -106,14 +108,28 @@ void Socrates::moveSocrates(Direction dir)
     moveTo(x, y);
 }
 
+void Socrates::goodie(int which)
+{
+    switch(which)
+    {
+        case 0: // Health goodie
+            removeHealth(-(100-getHealth()));
+            break;
+        case 1: // Flamethrower goodie
+            m_fire += 5;
+            break;
+    }
+}
+
 /*
- IMMORTAL FUNCTIONS
+ INANIMATE FUNCTIONS
  */
 
-Immortal::Immortal(int image, double x, double y, Direction dir, StudentWorld* world) : Actor(0, image, x, y, dir, 1, world) {}
+Inanimate::Inanimate(int image, double x, double y, Direction dir, StudentWorld* world) : Actor(0, image, x, y, dir, 1, world) {}
 
-bool Immortal::isDamagable() const
+bool Inanimate::isDamagable() const
 {
+    // Not damagable by default
     return false;
 }
 
@@ -121,7 +137,7 @@ bool Immortal::isDamagable() const
  PROJECTILE FUNCTIONS
  */
 
-Projectile::Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world) : Immortal(image, x, y, dir, world), m_distance(distance) {}
+Projectile::Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_distance(distance) {}
 
 void Projectile::Func()
 {
@@ -158,25 +174,86 @@ Dirt::Dirt(double x, double y, StudentWorld* world) : Actor(0, IID_DIRT, x, y, 0
  FOOD FUNCTIONS
  */
 
-Food::Food(double x, double y, StudentWorld* world) : Immortal(IID_FOOD, x, y, 90, world) {}
+Food::Food(double x, double y, StudentWorld* world) : Inanimate(IID_FOOD, x, y, 90, world) {}
 
 /*
  PIT FUNCTIONS
  */
 
-Pit::Pit(double x, double y, StudentWorld* world) : Immortal(IID_PIT, x, y, 0, world) {}
+Pit::Pit(double x, double y, StudentWorld* world) : Inanimate(IID_PIT, x, y, 0, world) {}
 
 /*
  GOODIE FUNCTIONS
  */
 
-Goodie::Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world) : Immortal(image, x, y, dir, world), m_lifetime(lifetime) {}
+Goodie::Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_lifetime(lifetime) {}
 
 void Goodie::Func()
 {
     if (getWorld()->checkOverlap(this,0,true))
+    {
         goodieEffects();
+        kill();
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        return;
+    }
     if (m_lifetime <= 0)
         kill();
     m_lifetime--;
 }
+
+bool Goodie::isDamagable() const
+{
+    return true;
+}
+
+/*
+ RESTORE HEALTH GOODIE
+ */
+
+HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_RESTORE_HEALTH_GOODIE, x, y, 0, world) {}
+
+void HealthRestore::goodieEffects()
+{
+    getWorld()->increaseScore(250);
+    getWorld()->player()->goodie(0);
+}
+
+/*
+ FLAMETHROWER GOODIE
+ */
+
+Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_FLAME_THROWER_GOODIE, x, y, 0, world) {}
+
+void Flamethrower::goodieEffects()
+{
+    getWorld()->increaseScore(300);
+    getWorld()->player()->goodie(1);
+}
+
+/*
+ EXTRA LIFE GOODIE
+ */
+
+
+ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_EXTRA_LIFE_GOODIE, x, y, 0, world) {}
+
+void ExtraLife::goodieEffects()
+{
+    getWorld()->increaseScore(500);
+    getWorld()->incLives();
+}
+
+/*
+ FUNGUS
+ */
+
+Fungus::Fungus(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_FUNGUS, x, y, 0, world) {}
+
+void Fungus::goodieEffects()
+{
+    getWorld()->increaseScore(-50);
+    getWorld()->player()->removeHealth(20);
+}
+
+

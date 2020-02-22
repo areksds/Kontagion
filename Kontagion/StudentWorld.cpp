@@ -4,6 +4,7 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include "Actor.h"
+
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -75,11 +76,40 @@ int StudentWorld::move()
         }
     }
     
-    
     /*
-     ADD NEW GOODIES IF NECESSARY
+     ADD NEW ACTORS/GOODIES IF NECESSARY
      */
+
+    // FUNGUS GENERATION
+    if (randInt(0,max(510 - getLevel() * 10, 200)) == 0)
+    {
+        double x, y;
+        randPoint(x,y,VIEW_RADIUS,true);
+        m_actors.push_back(new Fungus(x,y,this));
+    }
     
+    // GOODIE GENERATION
+    if (randInt(0,max(510 - getLevel() * 10, 250)) == 0)
+    {
+        double x, y;
+        randPoint(x,y,VIEW_RADIUS,true);
+        int type = randInt(1,10);
+        switch (type)
+        {
+            case 1:
+                m_actors.push_back(new ExtraLife(x,y,this));
+                break;
+            case 2:
+            case 3:
+            case 4:
+                m_actors.push_back(new Flamethrower(x,y,this));
+                break;
+            default:
+                m_actors.push_back(new HealthRestore(x,y,this));
+                break;
+        }
+    }
+     
     /*
      UPDATE THE GAME STATUS LINE
      */
@@ -99,7 +129,12 @@ void StudentWorld::cleanUp()
     }
 }
 
-bool StudentWorld::checkOverlap(double x, double y, int num)
+Socrates* StudentWorld::player() const
+{
+    return m_player;
+}
+
+bool StudentWorld::checkOverlap(double x, double y, int num) const
 {
     if (num >= m_actors.size())
         return false;
@@ -107,7 +142,7 @@ bool StudentWorld::checkOverlap(double x, double y, int num)
         num = static_cast<int>(m_actors.size());
     for (int i = 0; i != num; i++)
     {
-        if (sqrt(pow(m_actors[i]->getX() - x,2) + pow(m_actors[i]->getY() - y,2)) <= SPRITE_WIDTH)
+        if (distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= SPRITE_WIDTH)
             return true;
     }
     return false;
@@ -116,12 +151,16 @@ bool StudentWorld::checkOverlap(double x, double y, int num)
 bool StudentWorld::checkOverlap(Actor* original, int damage, bool player)
 {
     if (player)
-        if (sqrt(pow(m_player->getX() - original->getX(),2) + pow(m_player->getY() - original->getY(),2)) <= SPRITE_WIDTH)
+    {
+        if (distance(original->getX(), m_player->getX(), original->getY(), m_player->getY()) <= SPRITE_WIDTH)
             return true;
+        else
+            return false;
+    }
     
     for (int i = 0; i != m_actors.size(); i++)
     {
-        if (sqrt(pow(m_actors[i]->getX() - original->getX(),2) + pow(m_actors[i]->getY() - original->getY(),2)) <= SPRITE_WIDTH && original != m_actors[i])
+        if (distance(original->getX(), m_actors[i]->getX(), original->getY(), m_actors[i]->getY()) <= SPRITE_WIDTH && original != m_actors[i])
         {
             if (damage > 0)
             {
@@ -154,14 +193,13 @@ void StudentWorld::addProjectile(int type, double x, double y, Direction dir)
 template<typename T>
 void StudentWorld::generateActors(int num, int& existing, bool increment)
 {
-    int x, y;
+    double x, y;
     while (num > 0)
     {
         for (;;)
         {
-            x = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            y = randInt(VIEW_RADIUS - 120, VIEW_RADIUS + 120);
-            if (sqrt(pow(x-VIEW_RADIUS,2)+(pow(y-VIEW_RADIUS,2))) <= 120 && !checkOverlap(x,y,existing))
+            randPoint(x,y,120);
+            if (!checkOverlap(x,y,existing))
                 break;
         }
         m_actors.push_back(new T(x, y, this));
@@ -169,4 +207,21 @@ void StudentWorld::generateActors(int num, int& existing, bool increment)
             existing++;
         num--;
     }
+}
+
+void StudentWorld::randPoint(double &x, double &y, double maxLength, bool only) const
+{
+    double a = randInt(0,360) * RAD_CONV;
+    double r;
+    if (!only)
+        r = randInt(0,maxLength);
+    else
+        r = maxLength;
+    x = VIEW_RADIUS + r * cos(a);
+    y = VIEW_RADIUS + r * sin(a);
+}
+
+double StudentWorld::distance(double x1, double x2, double y1, double y2) const
+{
+    return sqrt(pow(x2-x1,2)+(pow(y2-y1,2)));
 }

@@ -16,12 +16,15 @@ class StudentWorld : public GameWorld
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-    bool checkOverlap(double x, double y, int num = -1);
+    Socrates* player() const;
+    bool checkOverlap(double x, double y, int num = -1) const;
     bool checkOverlap(Actor* original, int damage = 0, bool player = false);
     void addProjectile(int type, double x, double y, Direction dir);
    private:
     template<typename T>
         void generateActors(int num, int& existing, bool increment = true);
+    void randPoint(double& x, double&y, double maxLength, bool only = false) const;
+    double distance(double x1, double x2, double y1, double y2) const;
     std::vector<Actor*> m_actors;
     Socrates* m_player = nullptr;
 };
