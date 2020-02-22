@@ -61,11 +61,26 @@ void Socrates::Func()
         switch (ch)
         {
             case KEY_PRESS_SPACE:
-            // code later
+            {
+                if (m_spray >= 1)
+                {
+                    getWorld()->addProjectile(0, getX(),getY(),getDirection());
+                    m_spray--;
+                    getWorld()->playSound(SOUND_PLAYER_SPRAY);
+                }
                 break;
+            }
             case KEY_PRESS_ENTER:
-            // code later
+            {
+                if (m_fire >= 1)
+                {
+                    for (int i = 0; i < 16; i++)
+                        getWorld()->addProjectile(1, getX(),getY(),getDirection() + i * 22);
+                    m_fire--;
+                    getWorld()->playSound(SOUND_PLAYER_FIRE);
+                }
                 break;
+            }
             case KEY_PRESS_LEFT:
             {
                 moveSocrates(5);
@@ -77,6 +92,9 @@ void Socrates::Func()
                 break;
             }
         }
+    } else {
+        if (m_spray < 20)
+            m_spray++;
     }
 }
 
@@ -89,44 +107,46 @@ void Socrates::moveSocrates(Direction dir)
 }
 
 /*
- FLAME FUNCTIONS
+ IMMORTAL FUNCTIONS
  */
 
-Flame::Flame(double x, double y, Direction dir, StudentWorld* world) : Actor(0, IID_FLAME, x, y, dir, 1, world) {}
+Immortal::Immortal(int image, double x, double y, Direction dir, StudentWorld* world) : Actor(0, image, x, y, dir, 1, world) {}
 
-void Flame::Func()
+bool Immortal::isDamagable() const
 {
-    while (m_distance > 0)
+    return false;
+}
+
+/*
+ PROJECTILE FUNCTIONS
+ */
+
+Projectile::Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world) : Immortal(image, x, y, dir, world), m_distance(distance) {}
+
+void Projectile::Func()
+{
+    if (getWorld()->checkOverlap(this,5))
     {
-        if (getWorld()->checkOverlap(this,5))
-        {
-            kill();
-            return;
-        }
-        moveAngle(getDirection(), SPRITE_WIDTH);
-        m_distance -= SPRITE_WIDTH;
+        kill();
+        return;
     }
+    moveAngle(getDirection(), SPRITE_WIDTH);
+    m_distance -= SPRITE_WIDTH;
+    if (m_distance < 0)
+        kill();
 }
 
 /*
  FLAME FUNCTIONS
  */
 
-Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Actor(0, IID_SPRAY, x, y, dir, 1, world) {}
+Flame::Flame(double x, double y, Direction dir, StudentWorld* world) : Projectile(32,  IID_FLAME, x, y, dir, world) {}
 
-void Spray::Func()
-{
-    while (m_distance > 0)
-    {
-        if (getWorld()->checkOverlap(this,2))
-        {
-            kill();
-            return;
-        }
-        moveAngle(getDirection(), SPRITE_WIDTH);
-        m_distance -= SPRITE_WIDTH;
-    }
-}
+/*
+ FLAME FUNCTIONS
+ */
+
+Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Projectile(112,  IID_SPRAY, x, y, dir, world) {}
 
 /*
  DIRT FUNCTIONS
@@ -138,10 +158,25 @@ Dirt::Dirt(double x, double y, StudentWorld* world) : Actor(0, IID_DIRT, x, y, 0
  FOOD FUNCTIONS
  */
 
-Food::Food(double x, double y, StudentWorld* world) : Actor(0, IID_FOOD, x, y, 90, 1, world) {}
+Food::Food(double x, double y, StudentWorld* world) : Immortal(IID_FOOD, x, y, 90, world) {}
 
 /*
  PIT FUNCTIONS
  */
 
-Pit::Pit(double x, double y, StudentWorld* world) : Actor(0, IID_PIT, x, y, 0, 1, world) {}
+Pit::Pit(double x, double y, StudentWorld* world) : Immortal(IID_PIT, x, y, 0, world) {}
+
+/*
+ GOODIE FUNCTIONS
+ */
+
+Goodie::Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world) : Immortal(image, x, y, dir, world), m_lifetime(lifetime) {}
+
+void Goodie::Func()
+{
+    if (getWorld()->checkOverlap(this,0,true))
+        goodieEffects();
+    if (m_lifetime <= 0)
+        kill();
+    m_lifetime--;
+}

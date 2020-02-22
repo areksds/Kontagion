@@ -48,10 +48,12 @@ int StudentWorld::init()
 int StudentWorld::move()
 {
 
+    // PLAYER ACTION
     m_player->doSomething();
+    
+    // ACTOR ACTIONS
     for (int i = 0; i != m_actors.size(); i++)
     {
-        
         if (m_actors[i]->isAlive())
             m_actors[i]->doSomething();
         
@@ -62,9 +64,17 @@ int StudentWorld::move()
         // return GWSTATUS_FINISHED_LEVEL;
     }
     
-    /*
-     REMOVE DEAD ACTORS
-     */
+    // ACTOR CLEANUP
+    for (int i = 0; i != m_actors.size(); i++)
+    {
+        if (!m_actors[i]->isAlive())
+        {
+            delete m_actors[i];
+            m_actors.erase(m_actors.begin() + i);
+            i--;
+        }
+    }
+    
     
     /*
      ADD NEW GOODIES IF NECESSARY
@@ -103,11 +113,15 @@ bool StudentWorld::checkOverlap(double x, double y, int num)
     return false;
 }
 
-bool StudentWorld::checkOverlap(Actor* original, int damage)
+bool StudentWorld::checkOverlap(Actor* original, int damage, bool player)
 {
+    if (player)
+        if (sqrt(pow(m_player->getX() - original->getX(),2) + pow(m_player->getY() - original->getY(),2)) <= SPRITE_WIDTH)
+            return true;
+    
     for (int i = 0; i != m_actors.size(); i++)
     {
-        if (sqrt(pow(m_actors[i]->getX() - original->getX(),2) + pow(m_actors[i]->getY() - original->getY(),2)) <= SPRITE_WIDTH)
+        if (sqrt(pow(m_actors[i]->getX() - original->getX(),2) + pow(m_actors[i]->getY() - original->getY(),2)) <= SPRITE_WIDTH && original != m_actors[i])
         {
             if (damage > 0)
             {
@@ -123,6 +137,14 @@ bool StudentWorld::checkOverlap(Actor* original, int damage)
         }
     }
     return false;
+}
+
+void StudentWorld::addProjectile(int type, double x, double y, Direction dir)
+{
+    if (type == 0)
+        m_actors.push_back(new Spray(x, y, dir, this));
+    else
+        m_actors.push_back(new Flame(x, y, dir, this));
 }
 
 /*
