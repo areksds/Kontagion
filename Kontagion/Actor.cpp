@@ -2,7 +2,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 
-const double RAD_CONV = 1.0 / 360 * 2 * 4 * atan(1);
 /*
  ACTOR FUNCTIONS
  */
@@ -83,4 +82,14 @@ void Socrates::moveSocrates(Direction dir)
 
 Dirt::Dirt(double x, double y, StudentWorld* world) : Actor(0, IID_DIRT, x, y, 0, 1, world) {}
 
-// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
+/*
+ FOOD FUNCTIONS
+ */
+
+Food::Food(double x, double y, StudentWorld* world) : Actor(0, IID_FOOD, x, y, 90, 1, world) {}
+
+/*
+ PIT FUNCTIONS
+ */
+
+Pit::Pit(double x, double y, StudentWorld* world) : Actor(0, IID_PIT, x, y, 0, 1, world) {}

@@ -7,6 +7,8 @@ class StudentWorld;
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
+const double RAD_CONV = 1.0 / 360 * 2 * 4 * atan(1);
+
 /*
  ACTOR
  */
@@ -16,8 +18,8 @@ class Actor : public GraphObject
    public:
     Actor(int health, int image, double x, double y, Direction dir, int depth, StudentWorld* world);
     virtual void doSomething() = 0;
-   protected:
     bool isAlive() const;
+   protected:
     int getHealth() const;
     StudentWorld* getWorld() const;
     void removeHealth(int h);
@@ -52,6 +54,35 @@ class Dirt : public Actor
    public:
     Dirt(double x, double y, StudentWorld* world);
     void doSomething() {}
+};
+
+/*
+ FOOD
+ */
+
+class Food : public Actor
+{
+   public:
+    Food(double x, double y, StudentWorld* world);
+    void doSomething() {}
+};
+
+/*
+ PIT
+ */
+
+class Pit : public Actor
+{
+   public:
+    Pit(double x, double y, StudentWorld* world);
+    void doSomething() {}
+    /*
+     CODE FUNCTIONS FOR BACTERIA
+     */
+   private:
+    int m_sm = 5;
+    int m_asm = 3;
+    int m_ec = 2;
 };
 
 #endif // ACTOR_H_

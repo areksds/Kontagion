@@ -16,7 +16,10 @@ class StudentWorld : public GameWorld
     virtual int init();
     virtual int move();
     virtual void cleanUp();
+    bool checkOverlap(double x, double y, int num = -1);
    private:
+    template<typename T>
+        void generateActors(int num, int& existing, bool increment = true);
     std::vector<Actor*> m_actors;
     Socrates* m_player = nullptr;
 };
