@@ -242,9 +242,9 @@ void Pit::doSomething()
                 {
                     if (check == 0)
                     {
+                        getWorld()->playSound(SOUND_BACTERIUM_BORN);
                         getWorld()->addBacterium(i, getX(), getY());
                         bact[i]--;
-                        getWorld()->playSound(SOUND_BACTERIUM_BORN);
                         break;
                     }
                     check--;

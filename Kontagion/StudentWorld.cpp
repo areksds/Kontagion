@@ -258,7 +258,7 @@ bool StudentWorld::findFood(double x, double y, Direction& dir) const
                 if (dist2 < dist)
                     dist = dist2;
             }
-            dir = 360 - ((atan2(m_actors[i]->getY() - y,m_actors[i]->getX() - x) * (180 / (atan(1) * 4))));
+            dir = atan2(m_actors[i]->getY() - y,m_actors[i]->getX() - x) * (180 / (atan(1) * 4));
             found = true;
         }
     }
@@ -272,7 +272,7 @@ bool StudentWorld::findSocrates(double x, double y, Direction& dir, double dist)
 {
     if (distance(x, m_player->getX(), y, m_player->getY()) <= dist)
     {
-        dir = 360 - ((atan2(m_player->getY() - y,m_player->getX() - x) * (180 / (atan(1) * 4))));
+        dir = atan2(m_player->getY() - y,m_player->getX() - x) * (180 / (atan(1) * 4));
         return true;
     }
     return false;
@@ -285,7 +285,7 @@ void StudentWorld::decreaseBact()
 
 void StudentWorld::increaseBact()
 {
-    m_numBact--;
+    m_numBact++;
 }
 
 /*
