@@ -184,7 +184,7 @@ bool StudentWorld::checkOverlap(Actor* original, int damage, bool player, bool f
     {
         for (int i = 0; i != m_actors.size(); i++)
         {
-            if (distance(original->getX(), m_actors[i]->getX(), original->getY(), m_actors[i]->getY()) <= SPRITE_WIDTH && m_actors[i]->isEdible())
+            if (distance(original->getX(), m_actors[i]->getX(), original->getY(), m_actors[i]->getY()) <= SPRITE_WIDTH && m_actors[i]->isEdible() && m_actors[i]->isAlive())
             {
                 m_actors[i]->kill();
                 return true;
@@ -244,22 +244,35 @@ void StudentWorld::addFood(double x, double y)
 
 bool StudentWorld::findFood(double x, double y, Direction& dir) const
 {
+    double dist = 0;
+    bool found = false;
     for (int i = 0; i != m_actors.size(); i++)
     {
-        if (m_actors[i]->isEdible() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
+        if (m_actors[i]->isEdible() && m_actors[i]->isAlive() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
         {
-            dir = atan2(m_actors[i]->getY() - y,m_actors[i]->getX() - x) * (180 / (atan(1) * 4));
-            return true;
+            if (dist == 0)
+                dist = distance(x, m_actors[i]->getX(), y, m_actors[i]->getY());
+            else
+            {
+                double dist2 = distance(x, m_actors[i]->getX(), y, m_actors[i]->getY());
+                if (dist2 < dist)
+                    dist = dist2;
+            }
+            dir = 360 - ((atan2(m_actors[i]->getY() - y,m_actors[i]->getX() - x) * (180 / (atan(1) * 4))));
+            found = true;
         }
     }
-    return false;
+    if (found)
+        return true;
+    else
+        return false;
 }
 
 bool StudentWorld::findSocrates(double x, double y, Direction& dir, double dist) const
 {
     if (distance(x, m_player->getX(), y, m_player->getY()) <= dist)
     {
-        dir = atan2(m_player->getY() - y,x - m_player->getX() - x) * (180 / (atan(1) * 4));
+        dir = 360 - ((atan2(m_player->getY() - y,m_player->getX() - x) * (180 / (atan(1) * 4))));
         return true;
     }
     return false;
