@@ -202,6 +202,36 @@ bool Food::isEdible() const
 
 Pit::Pit(double x, double y, StudentWorld* world) : Inanimate(IID_PIT, x, y, 0, world) {}
 
+void Pit::doSomething()
+{
+    if (bact[0] == 0 && bact[1] == 0 && bact[2] == 0)
+        kill();
+    else
+    {
+        if (randInt(1,50) == 1)
+        {
+            int check = 0;
+            for (int i = 0; i < 3; i++)
+                if (bact[i] > 0)
+                    check++;
+            check = randInt(1,check);
+            for (int i = 0; i < 3; i++)
+            {
+                if (bact[i] > 0)
+                {
+                    check--;
+                    if (check == 0)
+                    {
+                        getWorld()->addBacterium(i, getX(), getY());
+                        bact[i]--;
+                        getWorld()->playSound(SOUND_BACTERIUM_BORN);
+                    }
+                }
+            }
+        }
+    }
+}
+
 /*
  GOODIE FUNCTIONS
  */
@@ -281,6 +311,8 @@ Bacteria::Bacteria(int health, int damage, int image, double x, double y, Studen
 
 void Bacteria::Func()
 {
+    aggressive(); // checks for aggressive actions
+    
     if (!getWorld()->checkOverlap(this,m_damage,true))
      {
          if (food() == 3)
@@ -293,9 +325,8 @@ void Bacteria::Func()
                  newy = newy < VIEW_RADIUS ? + SPRITE_WIDTH/2 : - SPRITE_WIDTH/2;
              generate(newx,newy);
              clearFood();
-         } else if (getWorld()->checkOverlap(this,0,false,true)) {
+         } else if (getWorld()->checkOverlap(this,0,false,true))
              increaseFood();
-         }
      }
     
     bacteriaActions();
@@ -343,30 +374,29 @@ void Salmonella::bacteriaActions()
     if (movement() > 0)
     {
         setMovement(movement() - 1);
-        double x, y;
-        getPositionInThisDirection(getDirection(), 3, x, y);
-        if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
-        {
-            moveAngle(getDirection(),3);
-        }
-        else
-        {
-            setRandDir();
-        }
+        move();
         return;
     } else {
-        double dist;
         Direction dir;
-        if (getWorld()->findFood(getX(),getY(),dist,dir))
+        if (getWorld()->findFood(getX(),getY(),dir))
         {
             setDirection(getDirection() + dir);
-            setMovement(dist/3);
-        } else {
+            move();
+        } else
             setRandDir();
-            return;
-        }
+        return;
     }
    
+}
+
+void Salmonella::move()
+{
+    double x, y;
+    getPositionInThisDirection(getDirection(), 3, x, y);
+    if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
+        moveAngle(getDirection(),3);
+    else
+        setRandDir();
 }
 
 /*
@@ -391,6 +421,11 @@ AggressiveSalmonella::AggressiveSalmonella(double x, double y, StudentWorld* wor
 void AggressiveSalmonella::generate(double x, double y)
 {
     getWorld()->addBacterium(1,x,y);
+}
+
+void AggressiveSalmonella::aggressive()
+{
+    
 }
 
 

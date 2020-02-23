@@ -132,13 +132,9 @@ class Pit : public Inanimate
 {
    public:
     Pit(double x, double y, StudentWorld* world);
-    /*
-     CODE FUNCTIONS FOR BACTERIA
-     */
+    void doSomething();
    private:
-    int m_sm = 5;
-    int m_asm = 3;
-    int m_ec = 2;
+    int bact [3] = {5,3,2};
 };
 
 /*
@@ -210,8 +206,10 @@ class Bacteria : public Actor
    public:
     Bacteria(int health, int damage, int image, double x, double y, StudentWorld* world);
     void Func();
+    virtual void aggressive() {}
     virtual void bacteriaActions() = 0;
     virtual void generate(double x, double y) = 0;
+    virtual void move() = 0;
     void setRandDir();
     int food() const;
     int movement() const;
@@ -233,6 +231,7 @@ class Salmonella : public Bacteria
    public:
     Salmonella(int health, int damage, double x, double y, StudentWorld* world);
     void bacteriaActions();
+    void move();
 };
 
 /*
@@ -255,6 +254,7 @@ class AggressiveSalmonella : public Salmonella
    public:
     AggressiveSalmonella(double x, double y, StudentWorld* world);
     void generate(double x, double y);
+    void aggressive();
 };
 
 /*
@@ -265,7 +265,9 @@ class Ecoli : public Bacteria
 {
    public:
     Ecoli(double x, double y, StudentWorld* world);
+    void bacteriaActions();
     void generate(double x, double y);
+    void move();
 };
 
 #endif // ACTOR_H_

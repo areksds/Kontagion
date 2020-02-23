@@ -226,17 +226,26 @@ void StudentWorld::addBacterium(int type, double x, double y)
     }
 }
 
-bool StudentWorld::findFood(double x, double y, double& dist, Direction& dir) const
+bool StudentWorld::findFood(double x, double y, Direction& dir) const
 {
     for (int i = 0; i != m_actors.size(); i++)
     {
         if (m_actors[i]->isEdible() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
         {
-            dir = atan2(m_actors[i]->getY(), m_actors[i]->getX());
-            dist = distance(x, m_actors[i]->getX(), y, m_actors[i]->getY());
+            // COMPUTE DIRECTION TO MOVE IN
+            /*
+            dir = atan2(m_actors[i]->getY(), m_actors[i]->getX()) * 180 / (atan(1) * 4);
+             */
+            
             return true;
         }
     }
+    return false;
+}
+
+bool StudentWorld::findSocrates(double x, double y, Direction& dir, double dist) const
+{
+    
     return false;
 }
 
