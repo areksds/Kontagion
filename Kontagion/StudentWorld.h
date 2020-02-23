@@ -21,8 +21,10 @@ class StudentWorld : public GameWorld
     bool checkOverlap(Actor* original, int damage = 0, bool player = false, bool food = false);
     void addProjectile(int type, double x, double y, Direction dir);
     void addBacterium(int type, double x, double y);
+    void addFood(double x, double y);
     bool findFood(double x, double y, Direction& dir) const;
     bool findSocrates(double x, double y, Direction& dir, double dist) const;
+    void decreaseBact();
     double distance(double x1, double x2, double y1, double y2) const;
    private:
     template<typename T>
@@ -30,7 +32,7 @@ class StudentWorld : public GameWorld
     void randPoint(double& x, double&y, double maxLength, bool only = false) const;
     std::vector<Actor*> m_actors;
     Socrates* m_player = nullptr;
-    int numBact = 10;
+    int m_numBact = 10;
 };
 
 #endif // STUDENTWORLD_H_

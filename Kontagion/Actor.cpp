@@ -307,11 +307,11 @@ void Fungus::goodieEffects()
  BACTERIUM
  */
 
-Bacteria::Bacteria(int health, int damage, int image, double x, double y, StudentWorld* world) : Actor(health, image, x, y, 90, 0, world), m_damage(damage) {}
+Bacteria::Bacteria(int health, int damage, int hurtSound, int deathSound, int image, double x, double y, StudentWorld* world) : Actor(health, image, x, y, 90, 0, world), m_damage(damage), m_hurtSound(hurtSound), m_deathSound(deathSound) {}
 
 void Bacteria::Func()
 {
-    aggressive(); // checks for aggressive actions
+    bool wasAggressive = aggressive(); // checks for aggressive actions
     
     if (!getWorld()->checkOverlap(this,m_damage,true))
      {
@@ -329,7 +329,37 @@ void Bacteria::Func()
              increaseFood();
      }
     
-    bacteriaActions();
+    if (!wasAggressive)
+    {
+        bacteriaActions();
+    }
+}
+
+void Bacteria::removeHealth(int h)
+{
+    Actor::removeHealth(h);
+    if (isAlive())
+    {
+        getWorld()->playSound(m_hurtSound);
+    } else {
+        getWorld()->playSound(m_deathSound);
+        getWorld()->increaseScore(100);
+        if (randInt(0,1) == 0)
+            getWorld()->addFood(getX(),getY());
+    }
+}
+
+bool Bacteria::move(int units)
+{
+    double x, y;
+    getPositionInThisDirection(getDirection(), units, x, y);
+    if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
+    {
+        moveAngle(getDirection(),units);
+        return true;
+    }
+    else
+        return false;
 }
 
 void Bacteria::setRandDir()
@@ -367,21 +397,23 @@ void Bacteria::clearFood()
  SALMONELLA
  */
 
-Salmonella::Salmonella(int health, int damage, double x, double y, StudentWorld* world) : Bacteria(health, damage, IID_SALMONELLA, x, y, world) {}
+Salmonella::Salmonella(int health, int damage, double x, double y, StudentWorld* world) : Bacteria(health, damage, SOUND_SALMONELLA_HURT, SOUND_SALMONELLA_DIE, IID_SALMONELLA, x, y, world) {}
 
 void Salmonella::bacteriaActions()
 {
     if (movement() > 0)
     {
         setMovement(movement() - 1);
-        move();
+        if(!move(3))
+            setRandDir();
         return;
     } else {
         Direction dir;
         if (getWorld()->findFood(getX(),getY(),dir))
         {
             setDirection(getDirection() + dir);
-            move();
+            if(!move(3))
+                setRandDir();
         } else
             setRandDir();
         return;
@@ -389,14 +421,9 @@ void Salmonella::bacteriaActions()
    
 }
 
-void Salmonella::move()
+void Salmonella::kill()
 {
-    double x, y;
-    getPositionInThisDirection(getDirection(), 3, x, y);
-    if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
-        moveAngle(getDirection(),3);
-    else
-        setRandDir();
+    getWorld()->decreaseBact();
 }
 
 /*
@@ -414,8 +441,6 @@ void RegularSalmonella::generate(double x, double y)
  AGGRESSIVE SALMONELLA
  */
 
-// ADD AGGRESSIVE ACTION AT BEGINNING OF FUNC
-
 AggressiveSalmonella::AggressiveSalmonella(double x, double y, StudentWorld* world) : Salmonella(10, 2, x, y, world) {}
 
 void AggressiveSalmonella::generate(double x, double y)
@@ -423,9 +448,40 @@ void AggressiveSalmonella::generate(double x, double y)
     getWorld()->addBacterium(1,x,y);
 }
 
-void AggressiveSalmonella::aggressive()
+bool AggressiveSalmonella::aggressive()
 {
-    
+    Direction dir;
+    if (getWorld()->findSocrates(getX(), getY(), dir, 72))
+    {
+        move(3);
+        return true;
+    }
+    return false;
 }
 
+/*
+ ECOLI
+ */
+
+Ecoli::Ecoli(double x, double y, StudentWorld* world) : Bacteria(5, 4, SOUND_ECOLI_HURT, SOUND_ECOLI_DIE, IID_ECOLI, x, y, world) {}
+
+void Ecoli::generate(double x, double y)
+{
+    getWorld()->addBacterium(2,x,y);
+}
+
+void Ecoli::bacteriaActions()
+{
+    Direction dir;
+    if (getWorld()->findSocrates(getX(), getY(), dir, 256))
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (move(2))
+                return;
+            else
+                setDirection(getDirection() + 10);
+        }
+    }
+}
 

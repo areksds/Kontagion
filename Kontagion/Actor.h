@@ -28,10 +28,10 @@ class Actor : public GraphObject
     virtual bool isDamagable() const;
     virtual bool isEdible() const;
     virtual bool canBlock() const;
+    virtual void removeHealth(int h);
+    virtual void kill();
     int getHealth() const;
     bool isAlive() const;
-    void removeHealth(int h);
-    void kill();
    protected:
     StudentWorld* getWorld() const;
    private:
@@ -204,12 +204,13 @@ class Fungus : public Goodie
 class Bacteria : public Actor
 {
    public:
-    Bacteria(int health, int damage, int image, double x, double y, StudentWorld* world);
+    Bacteria(int health, int damage, int hurtSound, int deathSound, int image, double x, double y, StudentWorld* world);
     void Func();
-    virtual void aggressive() {}
+    virtual bool aggressive() { return false; }
     virtual void bacteriaActions() = 0;
     virtual void generate(double x, double y) = 0;
-    virtual void move() = 0;
+    bool move(int units);
+    void removeHealth(int h);
     void setRandDir();
     int food() const;
     int movement() const;
@@ -218,6 +219,8 @@ class Bacteria : public Actor
     void clearFood();
    private:
     int m_damage;
+    int m_hurtSound;
+    int m_deathSound;
     int m_movement = 0;
     int m_food = 0;
 };
@@ -231,7 +234,7 @@ class Salmonella : public Bacteria
    public:
     Salmonella(int health, int damage, double x, double y, StudentWorld* world);
     void bacteriaActions();
-    void move();
+    void kill();
 };
 
 /*
@@ -254,7 +257,7 @@ class AggressiveSalmonella : public Salmonella
    public:
     AggressiveSalmonella(double x, double y, StudentWorld* world);
     void generate(double x, double y);
-    void aggressive();
+    bool aggressive();
 };
 
 /*
@@ -267,7 +270,8 @@ class Ecoli : public Bacteria
     Ecoli(double x, double y, StudentWorld* world);
     void bacteriaActions();
     void generate(double x, double y);
-    void move();
+    void removeHealth(int h);
+    void kill();
 };
 
 #endif // ACTOR_H_

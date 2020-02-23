@@ -61,8 +61,8 @@ int StudentWorld::move()
         if (!m_player->isAlive())
             return GWSTATUS_PLAYER_DIED;
         
-        // IF SOCRATES FINISHED LEVEL
-        // return GWSTATUS_FINISHED_LEVEL;
+        if (m_numBact == 0)
+            return GWSTATUS_FINISHED_LEVEL;
     }
     
     // ACTOR CLEANUP
@@ -75,10 +75,6 @@ int StudentWorld::move()
             i--;
         }
     }
-    
-    /*
-     ADD NEW ACTORS/GOODIES IF NECESSARY
-     */
 
     // FUNGUS GENERATION
     if (randInt(0,max(510 - getLevel() * 10, 200)) == 0)
@@ -226,17 +222,18 @@ void StudentWorld::addBacterium(int type, double x, double y)
     }
 }
 
+void StudentWorld::addFood(double x, double y)
+{
+    m_actors.push_back(new Food(x,y,this));
+}
+
 bool StudentWorld::findFood(double x, double y, Direction& dir) const
 {
     for (int i = 0; i != m_actors.size(); i++)
     {
         if (m_actors[i]->isEdible() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
         {
-            // COMPUTE DIRECTION TO MOVE IN
-            /*
-            dir = atan2(m_actors[i]->getY(), m_actors[i]->getX()) * 180 / (atan(1) * 4);
-             */
-            
+            dir = atan2(m_actors[i]->getY(),m_actors[i]->getX()) * 180 / (atan(1) * 4);
             return true;
         }
     }
@@ -245,8 +242,17 @@ bool StudentWorld::findFood(double x, double y, Direction& dir) const
 
 bool StudentWorld::findSocrates(double x, double y, Direction& dir, double dist) const
 {
-    
+    if (distance(x, m_player->getX(), y, m_player->getY()) <= dist)
+    {
+        dir = atan2(m_player->getY(),m_player->getX()) * 180 / (atan(1) * 4);
+        return true;
+    }
     return false;
+}
+
+void StudentWorld::decreaseBact()
+{
+    m_numBact--;
 }
 
 /*
