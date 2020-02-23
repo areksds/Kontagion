@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <sstream>
+#include <iomanip>
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include "Actor.h"
@@ -34,6 +36,7 @@ int StudentWorld::init()
     // INITIALIZE PITS
 
     generateActors<Pit>(getLevel(), generated);
+    m_numBact = getLevel() * 10;
     
     // INITIALIZE FOOD
     
@@ -59,7 +62,10 @@ int StudentWorld::move()
             m_actors[i]->doSomething();
         
         if (!m_player->isAlive())
+        {
+            decLives();
             return GWSTATUS_PLAYER_DIED;
+        }
         
         if (m_numBact == 0)
             return GWSTATUS_FINISHED_LEVEL;
@@ -105,10 +111,20 @@ int StudentWorld::move()
                 break;
         }
     }
-     
-    /*
-     UPDATE THE GAME STATUS LINE
-     */
+    
+    // PRINT TOP TEXT
+    ostringstream oss;
+    oss.fill('0');
+    if (getScore() < 0)
+        oss << "Score: -" << setw(5) << -1 * getScore() << "  ";
+    else
+        oss << "Score: " << setw(6) << getScore() << "  ";
+    oss << "Level: " << getLevel() << "  ";
+    oss << "Lives: " << getLives() << "  ";
+    oss << "Health: " << m_player->getHealth() << "  ";
+    oss << "Sprays: " << m_player->getSprays() << "  ";
+    oss << "Flames: " << m_player->getFlames();
+    setGameStatText(oss.str());
     
     return GWSTATUS_CONTINUE_GAME;
 }
@@ -123,6 +139,7 @@ void StudentWorld::cleanUp()
         delete *it;
         it = m_actors.erase(it);
     }
+    m_player = nullptr;
 }
 
 Socrates* StudentWorld::player() const
@@ -132,8 +149,6 @@ Socrates* StudentWorld::player() const
 
 bool StudentWorld::checkOverlap(double x, double y, int num, bool block) const
 {
-    if (num >= m_actors.size())
-        return false;
     if (num == -1)
         num = static_cast<int>(m_actors.size());
     for (int i = 0; i != num; i++)
@@ -184,7 +199,7 @@ bool StudentWorld::checkOverlap(Actor* original, int damage, bool player, bool f
         {
             if (damage > 0)
             {
-                if (m_actors[i]->isDamagable())
+                if (m_actors[i]->isAlive() && m_actors[i]->isDamagable())
                 {
                     m_actors[i]->removeHealth(damage);
                     return true;
@@ -210,13 +225,13 @@ void StudentWorld::addBacterium(int type, double x, double y)
 {
     switch (type)
     {
-        case 1:
+        case 0:
             m_actors.push_back(new RegularSalmonella(x, y, this));
             break;
-        case 2:
+        case 1:
             m_actors.push_back(new AggressiveSalmonella(x, y, this));
             break;
-        case 3:
+        case 2:
             m_actors.push_back(new Ecoli(x, y, this));
             break;
     }
@@ -233,7 +248,7 @@ bool StudentWorld::findFood(double x, double y, Direction& dir) const
     {
         if (m_actors[i]->isEdible() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
         {
-            dir = atan2(m_actors[i]->getY(),m_actors[i]->getX()) * 180 / (atan(1) * 4);
+            dir = atan2(m_actors[i]->getY() - y,m_actors[i]->getX() - x) * (180 / (atan(1) * 4));
             return true;
         }
     }
@@ -244,13 +259,18 @@ bool StudentWorld::findSocrates(double x, double y, Direction& dir, double dist)
 {
     if (distance(x, m_player->getX(), y, m_player->getY()) <= dist)
     {
-        dir = atan2(m_player->getY(),m_player->getX()) * 180 / (atan(1) * 4);
+        dir = atan2(m_player->getY() - y,x - m_player->getX() - x) * (180 / (atan(1) * 4));
         return true;
     }
     return false;
 }
 
 void StudentWorld::decreaseBact()
+{
+    m_numBact--;
+}
+
+void StudentWorld::increaseBact()
 {
     m_numBact--;
 }

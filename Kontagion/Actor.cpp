@@ -118,6 +118,17 @@ void Socrates::moveSocrates(Direction dir)
     moveTo(x, y);
 }
 
+void Socrates::removeHealth(int h)
+{
+    Actor::removeHealth(h);
+    if (isAlive())
+    {
+       getWorld()->playSound(SOUND_PLAYER_HURT);
+    } else {
+       getWorld()->playSound(SOUND_PLAYER_DIE);
+    }
+}
+
 void Socrates::goodie(int which)
 {
     switch(which)
@@ -129,6 +140,16 @@ void Socrates::goodie(int which)
             m_fire += 5;
             break;
     }
+}
+
+int Socrates::getSprays() const
+{
+    return m_spray;
+}
+
+int Socrates::getFlames() const
+{
+    return m_fire;
 }
 
 /*
@@ -214,18 +235,19 @@ void Pit::doSomething()
             for (int i = 0; i < 3; i++)
                 if (bact[i] > 0)
                     check++;
-            check = randInt(1,check);
+            check = randInt(0,check);
             for (int i = 0; i < 3; i++)
             {
                 if (bact[i] > 0)
                 {
-                    check--;
                     if (check == 0)
                     {
                         getWorld()->addBacterium(i, getX(), getY());
                         bact[i]--;
                         getWorld()->playSound(SOUND_BACTERIUM_BORN);
+                        break;
                     }
+                    check--;
                 }
             }
         }
@@ -245,7 +267,6 @@ void Goodie::Func()
         getWorld()->increaseScore(m_score);
         goodieEffects();
         kill();
-        getWorld()->playSound(SOUND_GOT_GOODIE);
         return;
     }
     if (m_lifetime <= 0)
@@ -267,6 +288,7 @@ HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(m
 void HealthRestore::goodieEffects()
 {
     getWorld()->player()->goodie(0);
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 /*
@@ -278,6 +300,7 @@ Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max
 void Flamethrower::goodieEffects()
 {
     getWorld()->player()->goodie(1);
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 /*
@@ -290,6 +313,7 @@ ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randI
 void ExtraLife::goodieEffects()
 {
     getWorld()->incLives();
+    getWorld()->playSound(SOUND_GOT_GOODIE);
 }
 
 /*
@@ -320,10 +344,11 @@ void Bacteria::Func()
              double newx = getX();
              double newy = getY();
              if (getX() != VIEW_RADIUS)
-                 newx = newx < VIEW_RADIUS ? + SPRITE_WIDTH/2 : - SPRITE_WIDTH/2;
+                 newx = newx < VIEW_RADIUS ? newx + SPRITE_WIDTH/2 : newx - SPRITE_WIDTH/2;
              if (getY() != VIEW_RADIUS)
-                 newy = newy < VIEW_RADIUS ? + SPRITE_WIDTH/2 : - SPRITE_WIDTH/2;
+                 newy = newy < VIEW_RADIUS ? newy + SPRITE_WIDTH/2 : newy - SPRITE_WIDTH/2;
              generate(newx,newy);
+             getWorld()->increaseBact();
              clearFood();
          } else if (getWorld()->checkOverlap(this,0,false,true))
              increaseFood();
@@ -342,6 +367,7 @@ void Bacteria::removeHealth(int h)
     {
         getWorld()->playSound(m_hurtSound);
     } else {
+        getWorld()->decreaseBact();
         getWorld()->playSound(m_deathSound);
         getWorld()->increaseScore(100);
         if (randInt(0,1) == 0)
@@ -353,7 +379,7 @@ bool Bacteria::move(int units)
 {
     double x, y;
     getPositionInThisDirection(getDirection(), units, x, y);
-    if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
+    if (!getWorld()->checkOverlap(x,y,-1,true) &&  getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
     {
         moveAngle(getDirection(),units);
         return true;
@@ -411,7 +437,7 @@ void Salmonella::bacteriaActions()
         Direction dir;
         if (getWorld()->findFood(getX(),getY(),dir))
         {
-            setDirection(getDirection() + dir);
+            setDirection(dir);
             if(!move(3))
                 setRandDir();
         } else
@@ -419,11 +445,6 @@ void Salmonella::bacteriaActions()
         return;
     }
    
-}
-
-void Salmonella::kill()
-{
-    getWorld()->decreaseBact();
 }
 
 /*
@@ -453,6 +474,7 @@ bool AggressiveSalmonella::aggressive()
     Direction dir;
     if (getWorld()->findSocrates(getX(), getY(), dir, 72))
     {
+        setDirection(dir);
         move(3);
         return true;
     }
@@ -475,6 +497,7 @@ void Ecoli::bacteriaActions()
     Direction dir;
     if (getWorld()->findSocrates(getX(), getY(), dir, 256))
     {
+        setDirection(dir);
         for (int i = 0; i < 10; i++)
         {
             if (move(2))

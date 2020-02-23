@@ -29,7 +29,7 @@ class Actor : public GraphObject
     virtual bool isEdible() const;
     virtual bool canBlock() const;
     virtual void removeHealth(int h);
-    virtual void kill();
+    void kill();
     int getHealth() const;
     bool isAlive() const;
    protected:
@@ -49,7 +49,10 @@ class Socrates : public Actor
    public:
     Socrates(StudentWorld* world);
     void Func();
+    void removeHealth(int h);
     void goodie(int which);
+    int getSprays() const;
+    int getFlames() const;
    private:
     void moveSocrates(Direction dir);
     int m_spray = 20;
@@ -234,7 +237,6 @@ class Salmonella : public Bacteria
    public:
     Salmonella(int health, int damage, double x, double y, StudentWorld* world);
     void bacteriaActions();
-    void kill();
 };
 
 /*
@@ -270,8 +272,6 @@ class Ecoli : public Bacteria
     Ecoli(double x, double y, StudentWorld* world);
     void bacteriaActions();
     void generate(double x, double y);
-    void removeHealth(int h);
-    void kill();
 };
 
 #endif // ACTOR_H_
