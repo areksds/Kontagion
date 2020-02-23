@@ -134,7 +134,7 @@ Socrates* StudentWorld::player() const
     return m_player;
 }
 
-bool StudentWorld::checkOverlap(double x, double y, int num) const
+bool StudentWorld::checkOverlap(double x, double y, int num, bool block) const
 {
     if (num >= m_actors.size())
         return false;
@@ -142,20 +142,44 @@ bool StudentWorld::checkOverlap(double x, double y, int num) const
         num = static_cast<int>(m_actors.size());
     for (int i = 0; i != num; i++)
     {
-        if (distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= SPRITE_WIDTH)
+        if (block)
+        {
+            if (m_actors[i]->canBlock() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= SPRITE_WIDTH/2)
+                return true;
+        }
+        else if (distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= SPRITE_WIDTH)
             return true;
     }
     return false;
 }
 
-bool StudentWorld::checkOverlap(Actor* original, int damage, bool player)
+bool StudentWorld::checkOverlap(Actor* original, int damage, bool player, bool food)
 {
     if (player)
     {
         if (distance(original->getX(), m_player->getX(), original->getY(), m_player->getY()) <= SPRITE_WIDTH)
+        {
+            if (damage > 0)
+            {
+                m_player->removeHealth(damage);
+            }
             return true;
+        }
         else
             return false;
+    }
+    
+    if (food)
+    {
+        for (int i = 0; i != m_actors.size(); i++)
+        {
+            if (distance(original->getX(), m_actors[i]->getX(), original->getY(), m_actors[i]->getY()) <= SPRITE_WIDTH && m_actors[i]->isEdible())
+            {
+                m_actors[i]->kill();
+                return true;
+            }
+        }
+        return false;
     }
     
     for (int i = 0; i != m_actors.size(); i++)
@@ -184,6 +208,36 @@ void StudentWorld::addProjectile(int type, double x, double y, Direction dir)
         m_actors.push_back(new Spray(x, y, dir, this));
     else
         m_actors.push_back(new Flame(x, y, dir, this));
+}
+
+void StudentWorld::addBacterium(int type, double x, double y)
+{
+    switch (type)
+    {
+        case 1:
+            m_actors.push_back(new RegularSalmonella(x, y, this));
+            break;
+        case 2:
+            m_actors.push_back(new AggressiveSalmonella(x, y, this));
+            break;
+        case 3:
+            m_actors.push_back(new Ecoli(x, y, this));
+            break;
+    }
+}
+
+bool StudentWorld::findFood(double x, double y, double& dist, Direction& dir) const
+{
+    for (int i = 0; i != m_actors.size(); i++)
+    {
+        if (m_actors[i]->isEdible() && distance(x, m_actors[i]->getX(), y, m_actors[i]->getY()) <= VIEW_RADIUS)
+        {
+            dir = atan2(m_actors[i]->getY(), m_actors[i]->getX());
+            dist = distance(x, m_actors[i]->getX(), y, m_actors[i]->getY());
+            return true;
+        }
+    }
+    return false;
 }
 
 /*

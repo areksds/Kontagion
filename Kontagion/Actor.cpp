@@ -22,6 +22,16 @@ bool Actor::isAlive() const
     return m_alive;
 }
 
+bool Actor::isEdible() const
+{
+    return false;
+}
+
+bool Actor::canBlock() const
+{
+    return false;
+}
+
 bool Actor::isDamagable() const
 {
     return true;
@@ -170,11 +180,21 @@ Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Projectil
 
 Dirt::Dirt(double x, double y, StudentWorld* world) : Actor(0, IID_DIRT, x, y, 0, 1, world) {}
 
+bool Dirt::canBlock() const
+{
+    return true;
+}
+
 /*
  FOOD FUNCTIONS
  */
 
 Food::Food(double x, double y, StudentWorld* world) : Inanimate(IID_FOOD, x, y, 90, world) {}
+
+bool Food::isEdible() const
+{
+    return true;
+}
 
 /*
  PIT FUNCTIONS
@@ -186,12 +206,13 @@ Pit::Pit(double x, double y, StudentWorld* world) : Inanimate(IID_PIT, x, y, 0, 
  GOODIE FUNCTIONS
  */
 
-Goodie::Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_lifetime(lifetime) {}
+Goodie::Goodie(int lifetime, int score, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_lifetime(lifetime), m_score(score) {}
 
 void Goodie::Func()
 {
     if (getWorld()->checkOverlap(this,0,true))
     {
+        getWorld()->increaseScore(m_score);
         goodieEffects();
         kill();
         getWorld()->playSound(SOUND_GOT_GOODIE);
@@ -211,11 +232,10 @@ bool Goodie::isDamagable() const
  RESTORE HEALTH GOODIE
  */
 
-HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_RESTORE_HEALTH_GOODIE, x, y, 0, world) {}
+HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 250, IID_RESTORE_HEALTH_GOODIE, x, y, 0, world) {}
 
 void HealthRestore::goodieEffects()
 {
-    getWorld()->increaseScore(250);
     getWorld()->player()->goodie(0);
 }
 
@@ -223,11 +243,10 @@ void HealthRestore::goodieEffects()
  FLAMETHROWER GOODIE
  */
 
-Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_FLAME_THROWER_GOODIE, x, y, 0, world) {}
+Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 300, IID_FLAME_THROWER_GOODIE, x, y, 0, world) {}
 
 void Flamethrower::goodieEffects()
 {
-    getWorld()->increaseScore(300);
     getWorld()->player()->goodie(1);
 }
 
@@ -236,11 +255,10 @@ void Flamethrower::goodieEffects()
  */
 
 
-ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_EXTRA_LIFE_GOODIE, x, y, 0, world) {}
+ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 500, IID_EXTRA_LIFE_GOODIE, x, y, 0, world) {}
 
 void ExtraLife::goodieEffects()
 {
-    getWorld()->increaseScore(500);
     getWorld()->incLives();
 }
 
@@ -248,12 +266,131 @@ void ExtraLife::goodieEffects()
  FUNGUS
  */
 
-Fungus::Fungus(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), IID_FUNGUS, x, y, 0, world) {}
+Fungus::Fungus(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), -50, IID_FUNGUS, x, y, 0, world) {}
 
 void Fungus::goodieEffects()
 {
-    getWorld()->increaseScore(-50);
     getWorld()->player()->removeHealth(20);
+}
+
+/*
+ BACTERIUM
+ */
+
+Bacteria::Bacteria(int health, int damage, int image, double x, double y, StudentWorld* world) : Actor(health, image, x, y, 90, 0, world), m_damage(damage) {}
+
+void Bacteria::Func()
+{
+    if (!getWorld()->checkOverlap(this,m_damage,true))
+     {
+         if (food() == 3)
+         {
+             double newx = getX();
+             double newy = getY();
+             if (getX() != VIEW_RADIUS)
+                 newx = newx < VIEW_RADIUS ? + SPRITE_WIDTH/2 : - SPRITE_WIDTH/2;
+             if (getY() != VIEW_RADIUS)
+                 newy = newy < VIEW_RADIUS ? + SPRITE_WIDTH/2 : - SPRITE_WIDTH/2;
+             generate(newx,newy);
+             clearFood();
+         } else if (getWorld()->checkOverlap(this,0,false,true)) {
+             increaseFood();
+         }
+     }
+    
+    bacteriaActions();
+}
+
+void Bacteria::setRandDir()
+{
+    setDirection(randInt(0,359));
+    setMovement(10);
+}
+
+int Bacteria::movement() const
+{
+    return m_movement;
+}
+
+void Bacteria::setMovement(int newMovement)
+{
+    m_movement = newMovement;
+}
+
+int Bacteria::food() const
+{
+    return m_food;
+}
+
+void Bacteria::increaseFood()
+{
+    m_food++;
+}
+
+void Bacteria::clearFood()
+{
+    m_food = 0;
+}
+
+/*
+ SALMONELLA
+ */
+
+Salmonella::Salmonella(int health, int damage, double x, double y, StudentWorld* world) : Bacteria(health, damage, IID_SALMONELLA, x, y, world) {}
+
+void Salmonella::bacteriaActions()
+{
+    if (movement() > 0)
+    {
+        setMovement(movement() - 1);
+        double x, y;
+        getPositionInThisDirection(getDirection(), 3, x, y);
+        if (!getWorld()->checkOverlap(x,y,-1,true) && getWorld()->distance(x,VIEW_RADIUS,y,VIEW_RADIUS) <= VIEW_RADIUS)
+        {
+            moveAngle(getDirection(),3);
+        }
+        else
+        {
+            setRandDir();
+        }
+        return;
+    } else {
+        double dist;
+        Direction dir;
+        if (getWorld()->findFood(getX(),getY(),dist,dir))
+        {
+            setDirection(getDirection() + dir);
+            setMovement(dist/3);
+        } else {
+            setRandDir();
+            return;
+        }
+    }
+   
+}
+
+/*
+ REGULAR SALMONELLA
+ */
+
+RegularSalmonella::RegularSalmonella(double x, double y, StudentWorld* world) : Salmonella(4, 1, x, y, world) {}
+
+void RegularSalmonella::generate(double x, double y)
+{
+    getWorld()->addBacterium(0,x,y);
+}
+
+/*
+ AGGRESSIVE SALMONELLA
+ */
+
+// ADD AGGRESSIVE ACTION AT BEGINNING OF FUNC
+
+AggressiveSalmonella::AggressiveSalmonella(double x, double y, StudentWorld* world) : Salmonella(10, 2, x, y, world) {}
+
+void AggressiveSalmonella::generate(double x, double y)
+{
+    getWorld()->addBacterium(1,x,y);
 }
 
 

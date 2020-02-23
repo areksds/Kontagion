@@ -26,6 +26,8 @@ class Actor : public GraphObject
     virtual void doSomething();
     virtual void Func() {}
     virtual bool isDamagable() const;
+    virtual bool isEdible() const;
+    virtual bool canBlock() const;
     int getHealth() const;
     bool isAlive() const;
     void removeHealth(int h);
@@ -107,6 +109,7 @@ class Dirt : public Actor
    public:
     Dirt(double x, double y, StudentWorld* world);
     void doSomething () {}
+    bool canBlock() const;
 };
 
 /*
@@ -117,6 +120,7 @@ class Food : public Inanimate
 {
    public:
     Food(double x, double y, StudentWorld* world);
+    bool isEdible() const;
     void doSomething () {}
 };
 
@@ -144,11 +148,12 @@ class Pit : public Inanimate
 class Goodie : public Inanimate
 {
    public:
-    Goodie(int lifetime, int image, double x, double y, Direction dir, StudentWorld* world);
+    Goodie(int lifetime, int score, int image, double x, double y, Direction dir, StudentWorld* world);
     virtual void goodieEffects() = 0;
     bool isDamagable() const;
     void Func();
    private:
+    int m_score;
     int m_lifetime;
 };
 
@@ -194,6 +199,73 @@ class Fungus : public Goodie
    public:
     Fungus(double x, double y, StudentWorld* world);
     void goodieEffects();
+};
+
+/*
+ BACTERIUM
+ */
+
+class Bacteria : public Actor
+{
+   public:
+    Bacteria(int health, int damage, int image, double x, double y, StudentWorld* world);
+    void Func();
+    virtual void bacteriaActions() = 0;
+    virtual void generate(double x, double y) = 0;
+    void setRandDir();
+    int food() const;
+    int movement() const;
+    void setMovement(int newMovement);
+    void increaseFood();
+    void clearFood();
+   private:
+    int m_damage;
+    int m_movement = 0;
+    int m_food = 0;
+};
+
+/*
+ SALMONELLA
+ */
+
+class Salmonella : public Bacteria
+{
+   public:
+    Salmonella(int health, int damage, double x, double y, StudentWorld* world);
+    void bacteriaActions();
+};
+
+/*
+ REGULAR SALMONELLA
+*/
+
+class RegularSalmonella : public Salmonella
+{
+   public:
+    RegularSalmonella(double x, double y, StudentWorld* world);
+    void generate(double x, double y);
+};
+
+/*
+ AGGRESSIVE SALMONELLA
+*/
+
+class AggressiveSalmonella : public Salmonella
+{
+   public:
+    AggressiveSalmonella(double x, double y, StudentWorld* world);
+    void generate(double x, double y);
+};
+
+/*
+ ECOLI
+ */
+
+class Ecoli : public Bacteria
+{
+   public:
+    Ecoli(double x, double y, StudentWorld* world);
+    void generate(double x, double y);
 };
 
 #endif // ACTOR_H_
