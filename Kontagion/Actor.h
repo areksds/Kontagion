@@ -16,7 +16,7 @@ class Actor : public GraphObject
    public:
     Actor(int health, int image, double x, double y, Direction dir, int depth, StudentWorld* world);
     virtual void doSomething();
-    virtual void Func() {}
+    virtual void Func() = 0;
     virtual bool isDamagable() const;
     virtual bool isEdible() const;
     virtual bool canBlock() const;
@@ -103,7 +103,8 @@ class Dirt : public Actor
 {
    public:
     Dirt(double x, double y, StudentWorld* world);
-    void doSomething () {}
+    void doSomething() {}
+    void Func() {}
     bool canBlock() const;
 };
 
@@ -116,7 +117,8 @@ class Food : public Inanimate
    public:
     Food(double x, double y, StudentWorld* world);
     bool isEdible() const;
-    void doSomething () {}
+    void doSomething() {}
+    void Func() {}
 };
 
 /*
@@ -128,6 +130,7 @@ class Pit : public Inanimate
    public:
     Pit(double x, double y, StudentWorld* world);
     void doSomething();
+    void Func() {}
    private:
     int bact [3] = {5,3,2};
 };
