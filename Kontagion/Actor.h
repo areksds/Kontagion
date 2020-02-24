@@ -5,14 +5,6 @@
 
 class StudentWorld;
 
-/*
-TO DO LIST:
- 
- */
-
-
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
-
 const double RAD_CONV = 1.0 / 360 * 2 * 4 * atan(1);
 
 /*
