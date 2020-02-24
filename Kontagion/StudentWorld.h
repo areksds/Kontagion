@@ -6,8 +6,6 @@
 #include "GameWorld.h"
 #include "Actor.h"
 
-// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
-
 class StudentWorld : public GameWorld
 {
    public:

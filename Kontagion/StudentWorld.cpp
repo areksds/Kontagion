@@ -14,8 +14,6 @@ GameWorld* createStudentWorld(string assetPath)
 	return new StudentWorld(assetPath);
 }
 
-// Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
-
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
@@ -291,6 +289,11 @@ void StudentWorld::increaseBact()
     m_numBact++;
 }
 
+double StudentWorld::distance(double x1, double x2, double y1, double y2) const
+{
+    return sqrt(pow(x2-x1,2)+(pow(y2-y1,2)));
+}
+
 /*
  PRIVATE MEMBER TEMPLATES AND FUNCTIONS
  */
@@ -324,9 +327,4 @@ void StudentWorld::randPoint(double &x, double &y, double maxLength, bool only) 
         r = maxLength;
     x = VIEW_RADIUS + r * cos(a);
     y = VIEW_RADIUS + r * sin(a);
-}
-
-double StudentWorld::distance(double x1, double x2, double y1, double y2) const
-{
-    return sqrt(pow(x2-x1,2)+(pow(y2-y1,2)));
 }
