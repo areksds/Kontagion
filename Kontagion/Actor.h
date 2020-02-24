@@ -59,6 +59,7 @@ class Inanimate : public Actor
 {
    public:
     Inanimate(int image, double x, double y, Direction dir, StudentWorld* world);
+    void Func() {}
     bool isDamagable() const;
 };
 
@@ -118,7 +119,6 @@ class Food : public Inanimate
     Food(double x, double y, StudentWorld* world);
     bool isEdible() const;
     void doSomething() {}
-    void Func() {}
 };
 
 /*
@@ -130,7 +130,6 @@ class Pit : public Inanimate
    public:
     Pit(double x, double y, StudentWorld* world);
     void doSomething();
-    void Func() {}
    private:
     int bact [3] = {5,3,2};
 };
@@ -143,9 +142,10 @@ class Goodie : public Inanimate
 {
    public:
     Goodie(int lifetime, int score, int image, double x, double y, Direction dir, StudentWorld* world);
-    virtual void goodieEffects() = 0;
     bool isDamagable() const;
     void Func();
+   protected:
+    virtual void goodieEffects() = 0;
    private:
     int m_lifetime;
     int m_score;
