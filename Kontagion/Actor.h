@@ -164,6 +164,7 @@ class HealthRestore : public Goodie
 {
    public:
     HealthRestore(double x, double y, StudentWorld* world);
+   protected:
     void goodieEffects();
 };
 
@@ -175,6 +176,7 @@ class Flamethrower : public Goodie
 {
    public:
     Flamethrower(double x, double y, StudentWorld* world);
+   protected:
     void goodieEffects();
 };
 
@@ -186,6 +188,7 @@ class ExtraLife : public Goodie
 {
    public:
     ExtraLife(double x, double y, StudentWorld* world);
+   protected:
     void goodieEffects();
 };
 
@@ -197,6 +200,7 @@ class Fungus : public Goodie
 {
    public:
     Fungus(double x, double y, StudentWorld* world);
+   protected:
     void goodieEffects();
 };
 
@@ -209,11 +213,12 @@ class Bacteria : public Actor
    public:
     Bacteria(int health, int damage, int hurtSound, int deathSound, int image, double x, double y, StudentWorld* world);
     void Func();
+    void removeHealth(int h);
+   protected:
     virtual bool aggressive() { return false; }
     virtual void bacteriaActions() = 0;
     virtual void generate(double x, double y) = 0;
     bool move(int units);
-    void removeHealth(int h);
     void setRandDir();
     int food() const;
     int movement() const;
@@ -236,6 +241,7 @@ class Salmonella : public Bacteria
 {
    public:
     Salmonella(int health, int damage, double x, double y, StudentWorld* world);
+   protected:
     void bacteriaActions();
 };
 
@@ -247,6 +253,7 @@ class RegularSalmonella : public Salmonella
 {
    public:
     RegularSalmonella(double x, double y, StudentWorld* world);
+   protected:
     void generate(double x, double y);
 };
 
@@ -258,6 +265,7 @@ class AggressiveSalmonella : public Salmonella
 {
    public:
     AggressiveSalmonella(double x, double y, StudentWorld* world);
+   protected:
     void generate(double x, double y);
     bool aggressive();
 };
@@ -270,6 +278,7 @@ class Ecoli : public Bacteria
 {
    public:
     Ecoli(double x, double y, StudentWorld* world);
+   protected:
     void bacteriaActions();
     void generate(double x, double y);
 };
