@@ -68,7 +68,10 @@ int StudentWorld::move()
         }
         
         if (m_numBact == 0)
+        {
+            playSound(SOUND_FINISHED_LEVEL);
             return GWSTATUS_FINISHED_LEVEL;
+        }
     }
     
     // ACTOR CLEANUP

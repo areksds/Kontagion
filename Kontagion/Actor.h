@@ -35,9 +35,9 @@ class Actor : public GraphObject
    protected:
     StudentWorld* getWorld() const;
    private:
+    int m_health;
     StudentWorld* m_world;
     bool m_alive = true;
-    int m_health;
 };
 
 /*
@@ -152,8 +152,8 @@ class Goodie : public Inanimate
     bool isDamagable() const;
     void Func();
    private:
-    int m_score;
     int m_lifetime;
+    int m_score;
 };
 
 /*
