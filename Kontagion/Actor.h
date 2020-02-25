@@ -70,9 +70,10 @@ class Inanimate : public Actor
 class Projectile : public Inanimate
 {
    public:
-    Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world);
+    Projectile(int damage, int distance, int image, double x, double y, Direction dir, StudentWorld* world);
     void Func();
    private:
+    int m_damage;
     int m_distance;
 };
 

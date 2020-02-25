@@ -168,11 +168,11 @@ bool Inanimate::isDamagable() const
  PROJECTILE FUNCTIONS
  */
 
-Projectile::Projectile(int distance, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_distance(distance) {}
+Projectile::Projectile(int damage, int distance, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_damage(damage), m_distance(distance) {}
 
 void Projectile::Func()
 {
-    if (getWorld()->checkOverlap(this,5))
+    if (getWorld()->checkOverlap(this,m_damage))
     {
         kill();
         return;
@@ -187,13 +187,13 @@ void Projectile::Func()
  FLAME FUNCTIONS
  */
 
-Flame::Flame(double x, double y, Direction dir, StudentWorld* world) : Projectile(32,  IID_FLAME, x, y, dir, world) {}
+Flame::Flame(double x, double y, Direction dir, StudentWorld* world) : Projectile(5, 32,  IID_FLAME, x, y, dir, world) {}
 
 /*
- FLAME FUNCTIONS
+ SPRAY FUNCTIONS
  */
 
-Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Projectile(112,  IID_SPRAY, x, y, dir, world) {}
+Spray::Spray(double x, double y, Direction dir, StudentWorld* world) : Projectile(2, 112,  IID_SPRAY, x, y, dir, world) {}
 
 /*
  DIRT FUNCTIONS
