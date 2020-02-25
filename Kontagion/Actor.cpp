@@ -258,7 +258,7 @@ void Pit::doSomething()
  GOODIE FUNCTIONS
  */
 
-Goodie::Goodie(int lifetime, int score, int image, double x, double y, Direction dir, StudentWorld* world) : Inanimate(image, x, y, dir, world), m_lifetime(lifetime), m_score(score) {}
+Goodie::Goodie(int lifetime, int score, int image, double x, double y, StudentWorld* world) : Inanimate(image, x, y, 0, world), m_lifetime(lifetime), m_score(score) {}
 
 void Goodie::Func()
 {
@@ -283,7 +283,7 @@ bool Goodie::isDamagable() const
  RESTORE HEALTH GOODIE
  */
 
-HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 250, IID_RESTORE_HEALTH_GOODIE, x, y, 0, world) {}
+HealthRestore::HealthRestore(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 250, IID_RESTORE_HEALTH_GOODIE, x, y, world) {}
 
 void HealthRestore::goodieEffects()
 {
@@ -295,7 +295,7 @@ void HealthRestore::goodieEffects()
  FLAMETHROWER GOODIE
  */
 
-Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 300, IID_FLAME_THROWER_GOODIE, x, y, 0, world) {}
+Flamethrower::Flamethrower(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 300, IID_FLAME_THROWER_GOODIE, x, y, world) {}
 
 void Flamethrower::goodieEffects()
 {
@@ -308,7 +308,7 @@ void Flamethrower::goodieEffects()
  */
 
 
-ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 500, IID_EXTRA_LIFE_GOODIE, x, y, 0, world) {}
+ExtraLife::ExtraLife(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), 500, IID_EXTRA_LIFE_GOODIE, x, y, world) {}
 
 void ExtraLife::goodieEffects()
 {
@@ -320,7 +320,7 @@ void ExtraLife::goodieEffects()
  FUNGUS
  */
 
-Fungus::Fungus(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), -50, IID_FUNGUS, x, y, 0, world) {}
+Fungus::Fungus(double x, double y, StudentWorld* world) : Goodie(max(randInt(0, 300 - 10 * world->getLevel() - 1), 50), -50, IID_FUNGUS, x, y, world) {}
 
 void Fungus::goodieEffects()
 {

@@ -142,7 +142,7 @@ class Pit : public Inanimate
 class Goodie : public Inanimate
 {
    public:
-    Goodie(int lifetime, int score, int image, double x, double y, Direction dir, StudentWorld* world);
+    Goodie(int lifetime, int score, int image, double x, double y, StudentWorld* world);
     bool isDamagable() const;
     void Func();
    protected:
